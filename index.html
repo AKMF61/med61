@@ -12,6 +12,7 @@
     color: #FFD700;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
   }
 
   h1 {
@@ -69,6 +70,14 @@
     padding: 40px 20px;
     border-radius: 20px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 1s ease-out;
+  }
+
+  #result.show {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   #congrats {
@@ -102,6 +111,15 @@
 
   .verse-box {
     background: #292929;
+  }
+
+  /* Confetti styles */
+  canvas#confetti {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
   }
 
   @media (max-width: 768px) {
@@ -143,11 +161,14 @@
   <source src="music.mp3" type="audio/mpeg">
 </audio>
 
+<canvas id="confetti"></canvas>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
 let graduates = [];
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv3eBxRi0Cc-uxihd_f-09r4mobnoM88hLNiPccq05WiSnis4pIkV--ajRcoA2g4BgsAlGR8uS5JAd/pub?output=csv";
 
+// Load graduates from CSV
 Papa.parse(SHEET_CSV_URL, {
     download: true,
     header: true,
@@ -168,6 +189,61 @@ Papa.parse(SHEET_CSV_URL, {
     }
 });
 
+// ===== Confetti setup =====
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+let confettiPieces = [];
+let confettiAnimation;
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function createConfetti() {
+    confettiPieces = [];
+    const colors = ['#FFD700', '#FFC700', '#FFB700', '#FFA500']; // golden shades
+    for (let i = 0; i < 150; i++) {
+        confettiPieces.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            r: Math.random() * 8 + 4,
+            d: Math.random() * 50,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            tilt: Math.random() * 15,
+            tiltAngle: Math.random() * Math.PI
+        });
+    }
+}
+
+function drawConfetti() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confettiPieces.forEach(p => {
+        ctx.beginPath();
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = p.r / 2;
+        ctx.moveTo(p.x + p.tilt, p.y);
+        ctx.lineTo(p.x, p.y + p.tilt + p.r);
+        ctx.stroke();
+
+        p.tiltAngle += 0.05;
+        p.y += Math.cos(p.d) + 2;
+        p.x += Math.sin(p.d);
+        p.tilt = Math.sin(p.tiltAngle) * 15;
+
+        if(p.y > canvas.height) p.y = -10;
+        if(p.x > canvas.width) p.x = 0;
+    });
+}
+
+function startConfetti() {
+    createConfetti();
+    confettiAnimation = setInterval(drawConfetti, 20);
+}
+
+// ===== Celebrate function =====
 function celebrate() {
     const input = document.getElementById("gradNumber").value.trim();
     const grad = graduates.find(g => g.number === input);
@@ -177,7 +253,11 @@ function celebrate() {
     }
 
     document.getElementById("form").style.display = "none";
-    document.getElementById("result").style.display = "block";
+    const resultDiv = document.getElementById("result");
+    resultDiv.style.display = "block";
+
+    // Trigger fade-in animation
+    setTimeout(()=> resultDiv.classList.add("show"), 50);
 
     document.getElementById("congrats").innerText = `Congratulations, ${grad.firstName}!`;
     document.getElementById("photo").src = grad.image;
@@ -186,6 +266,8 @@ function celebrate() {
 
     const music = document.getElementById("music");
     music.play();
+
+    startConfetti();
 }
 </script>
 </body>
