@@ -163,33 +163,36 @@
 
     // Load Google Sheet data on page load
     fetch(SHEET_CSV_URL)
-      .then(res => res.text())
-      .then(text => {
-        const rows = text.trim().split("\n").slice(1);
-        graduates = rows.map(row => {
-          const cols = row.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/);
-          return {
-            number: cols[0]?.trim(),
-            firstName: cols[1]?.trim(),
-            image: cols[2]?.trim(),
-            message: cols[3]?.trim(),
-            verse: cols[4]?.trim()
-          };
-        });
-      })
-      .catch(err => {
-        alert("Failed to load graduation data");
-        console.error(err);
-      });
+  .then(res => res.text())
+  .then(text => {
+    const rows = text.trim().split("\n");
+    const headers = rows[0].split(",");
+    graduates = rows.slice(1).map(r => {
+      const cols = r.split(",");
+      return {
+        number: cols[0].trim(),           // normalize number
+        firstName: cols[1].trim(),
+        image: cols[2].trim(),
+        message: cols[3].trim(),
+        verse: cols[4].trim()
+      };
+    });
+    console.log("Loaded graduates:", graduates);
+  })
+  .catch(err => {
+    alert("Failed to load graduation data");
+    console.error(err);
+  });
+
 
     function findGraduate() {
-      const input = document.getElementById("gradNumber").value.trim();
-      const grad = graduates.find(g => g.number === input);
+     const input = document.getElementById("gradNumber").value.trim();
+const grad = graduates.find(g => g.number === input);
+if (!grad) {
+  alert("Graduation number not found ❌");
+  return;
+}
 
-      if (!grad) {
-        alert("Graduation number not found ❌");
-        return;
-      }
 
       document.getElementById("form").style.display = "none";
       document.getElementById("result").classList.remove("hidden");
@@ -207,6 +210,7 @@
 
 </body>
 </html>
+
 
 
 
