@@ -97,9 +97,9 @@
   }
 
   #photo {
-    width: 320px;
-    height: 320px;
-    object-fit: cover;
+   width: 400px;          /* larger width */
+    height: auto;          /* keep aspect ratio, no cropping */
+    object-fit: contain;   /* show full image inside box */
     margin: 20px 0;
     border: 5px solid #FFD700;
     border-radius: 16px;
@@ -287,6 +287,7 @@ function celebrate() {
 </script>
 </body>
 </html>
+
 
 
 
