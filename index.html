@@ -1,234 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Graduation Celebration 🎓</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta charset="UTF-8">
+  <title>Graduation Celebration</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 520px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 32px 24px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
-      text-align: center;
-    }
-
-    h1, h2 {
-      margin-top: 0;
-    }
-
-    input {
-      width: 80%;
-      padding: 14px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: none;
-      margin-top: 12px;
-      text-align: center;
-    }
-
-    button {
-      margin-top: 16px;
-      padding: 14px 26px;
-      font-size: 16px;
-      border-radius: 14px;
-      border: none;
-      background: #ffd166;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    img {
-      width: 200px;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin: 20px 0;
-      border: 4px solid rgba(255,255,255,0.4);
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .verse {
-      margin-top: 12px;
-      font-style: italic;
-      opacity: 0.9;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; background: #f5f5f5; }
+    #form { margin-top: 50px; }
+    #result { display: none; margin-top: 30px; }
+    #photo { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; margin: 20px 0; }
+    canvas#confetti { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <div class="card">
+  <h1>Graduation Celebration 🎓</h1>
 
-    <!-- INPUT FORM -->
-    <div id="form">
-      <h2>🎓 Graduation Celebration</h2>
-      <p>Enter your graduation number</p>
-      <input type="text" id="gradNumber" placeholder="e.g. 1023" />
-      <br />
-      <button onclick="findGraduate()">Celebrate 🎉</button>
-    </div>
-
-    <!-- RESULT -->
-    <div id="result" class="hidden">
-      <h1 id="congrats"></h1>
-      <img id="photo" src="" alt="Graduate photo" />
-      <p id="message"></p>
-      <p class="verse" id="verse"></p>
-
-      <audio id="music" loop>
-        <source src="music.mp3" type="audio/mpeg" />
-      </audio>
-      <canvas id="confetti"></canvas>
-    </div>
-
+  <div id="form">
+    <input type="text" id="gradNumber" placeholder="Enter your graduation number">
+    <button onclick="celebrate()">Celebrate!</button>
   </div>
 
-  <script>
-    // CONFETTI SETUP
-    let graduates = []; // global array to hold all graduate data
-    const canvas = document.getElementById('confetti');
-    const ctx = canvas.getContext('2d');
-    let confettiPieces = [];
+  <div id="result">
+    <h2 id="congrats"></h2>
+    <img id="photo" src="" alt="Graduate Photo">
+    <p id="message"></p>
+    <p id="verse"></p>
+  </div>
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+  <audio id="music" loop>
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
 
-    function createConfetti() {
-      confettiPieces = [];
-      for (let i = 0; i < 150; i++) {
-        confettiPieces.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height - canvas.height,
-          r: Math.random() * 6 + 4,
-          d: Math.random() * 50,
-          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-          tilt: Math.random() * 10
+  <canvas id="confetti"></canvas>
+
+<script>
+  // ===== Global variables =====
+  let graduates = [];
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv3eBxRi0Cc-uxihd_f-09r4mobnoM88hLNiPccq05WiSnis4pIkV--ajRcoA2g4BgsAlGR8uS5JAd/pub?output=csv";
+
+  // ===== Fetch CSV and parse =====
+  fetch(SHEET_CSV_URL)
+    .then(res => res.text())
+    .then(text => {
+      const rows = text.trim().split("\n");
+      rows.slice(1).forEach(row => {
+        const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+        if(!cols) return;
+        graduates.push({
+          number: cols[0].replace(/"/g,'').trim(),
+          firstName: cols[1].replace(/"/g,'').trim(),
+          image: cols[2].replace(/"/g,'').trim(),
+          message: cols[3].replace(/"/g,'').trim(),
+          verse: cols[4].replace(/"/g,'').trim()
         });
-      }
-    }
-
-    function drawConfetti() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      confettiPieces.forEach(p => {
-        ctx.beginPath();
-        ctx.fillStyle = p.color;
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
       });
-      updateConfetti();
-    }
-
-    function updateConfetti() {
-      confettiPieces.forEach(p => {
-        p.y += Math.cos(p.d) + 2 + p.r / 2;
-        p.x += Math.sin(p.d);
-        if (p.y > canvas.height) {
-          p.y = -10;
-        }
-      });
-    }
-
-    function startConfetti() {
-      createConfetti();
-      setInterval(drawConfetti, 20);
-    }
-
-    /* =============================
-       STEP 1: PASTE YOUR CSV LINK HERE
-       ============================= */
-
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv3eBxRi0Cc-uxihd_f-09r4mobnoM88hLNiPccq05WiSnis4pIkV--ajRcoA2g4BgsAlGR8uS5JAd/pub?output=csv";
-
-    let graduates = [];
-
-    // Load Google Sheet data on page load
-fetch(SHEET_CSV_URL)
-  .then(res => res.text())
-  .then(text => {
-    const rows = text.trim().split("\n");
-    // headers are in rows[0]
-    graduates = rows.slice(1).map(row => {
-      const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-      return {
-        number: cols[0].replace(/"/g,'').trim(),
-        firstName: cols[1].replace(/"/g,'').trim(),
-        image: cols[2].replace(/"/g,'').trim(),
-        message: cols[3].replace(/"/g,'').trim(),
-        verse: cols[4].replace(/"/g,'').trim()
-      };
+      console.log("Graduates loaded:", graduates);
+    })
+    .catch(err => {
+      alert("Failed to load graduation data.");
+      console.error(err);
     });
-    console.log("Graduates loaded:", graduates);
-  })
-  .catch(err => console.error("Failed to load CSV:", err));
 
+  // ===== Confetti Setup =====
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  let confettiPieces = [];
+  let confettiInterval;
 
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
-    function findGraduate() {
-  const input = document.getElementById("gradNumber").value.trim();
-  const grad = graduates.find(g => g.number === input);
-
-  if (!grad) {
-    alert("Graduation number not found ❌");
-    return;
+  function createConfetti() {
+    confettiPieces = [];
+    for (let i = 0; i < 150; i++) {
+      confettiPieces.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * 50,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+        tilt: Math.random() * 10
+      });
+    }
   }
 
-  // show info
-  document.getElementById("form").style.display = "none";
-  document.getElementById("result").classList.remove("hidden");
+  function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettiPieces.forEach(p => {
+      ctx.beginPath();
+      ctx.fillStyle = p.color;
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    updateConfetti();
+  }
 
-  document.getElementById("congrats").innerText = `Congratulations, ${grad.firstName}!`;
-  document.getElementById("photo").src = grad.image;
-  document.getElementById("message").innerText = grad.message;
-  document.getElementById("verse").innerText = grad.verse;
+  function updateConfetti() {
+    confettiPieces.forEach(p => {
+      p.y += Math.cos(p.d) + 2 + p.r / 2;
+      p.x += Math.sin(p.d);
+      if (p.y > canvas.height) p.y = -10;
+    });
+  }
 
-  const music = document.getElementById("music");
-  music.play();
-  startConfetti();
-}
+  function startConfetti() {
+    createConfetti();
+    confettiInterval = setInterval(drawConfetti, 20);
+  }
 
-
-
-      document.getElementById("form").style.display = "none";
-      document.getElementById("result").classList.remove("hidden");
-
-      document.getElementById("congrats").innerText = `Congratulations, ${grad.firstName}!`;
-      document.getElementById("photo").src = grad.image;
-      document.getElementById("message").innerText = grad.message;
-      document.getElementById("verse").innerText = grad.verse;
-
-      const music = document.getElementById("music");
-      music.play();
-      startConfetti();();
+  // ===== Celebrate Function =====
+  function celebrate() {
+    const input = document.getElementById("gradNumber").value.trim();
+    const grad = graduates.find(g => g.number === input);
+    if(!grad) {
+      alert("Graduation number not found ❌");
+      return;
     }
-  </script>
+
+    document.getElementById("form").style.display = "none";
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("congrats").innerText = `Congratulations, ${grad.firstName}!`;
+    document.getElementById("photo").src = grad.image;
+    document.getElementById("message").innerText = grad.message;
+    document.getElementById("verse").innerText = grad.verse;
+
+    const music = document.getElementById("music");
+    music.play();
+    startConfetti();
+  }
+</script>
 
 </body>
 </html>
-
-
-
-
-
-
-
