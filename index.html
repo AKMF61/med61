@@ -1,197 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Graduation Celebration</title>
-  <style>
-    body { 
-      font-family: 'Georgia', serif; 
-      text-align: center; 
-      background: #1a1a1a; 
-      color: #FFD700; /* gold text */ 
-      margin: 0;
-      padding: 0;
-    }
-
-    h1 {
-      font-size: 3rem;
-      margin-top: 50px;
-      text-shadow: 2px 2px 5px black;
-    }
-
-    #form { 
-      margin-top: 50px; 
-    }
-
-    input#gradNumber {
-      font-size: 1.5rem;
-      padding: 10px;
-      width: 200px;
-      border-radius: 8px;
-      border: 2px solid #FFD700;
-      background: #333;
-      color: #FFD700;
-      text-align: center;
-    }
-
-    button {
-      font-size: 1.5rem;
-      padding: 10px 25px;
-      margin-left: 10px;
-      border-radius: 8px;
-      border: 2px solid #FFD700;
-      background: #333;
-      color: #FFD700;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      background: #FFD700;
-      color: #1a1a1a;
-    }
-
-    #result {
-      display: none;
-      margin-top: 50px;
-    }
-
-    #congrats {
-      font-size: 3rem;
-      text-shadow: 2px 2px 5px black;
-    }
-
-    #photo {
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin: 30px 0;
-      border: 5px solid #FFD700;
-    }
-
-    #message, #verse {
-      font-size: 2rem;
-      margin: 15px 0;
-      text-shadow: 1px 1px 3px black;
-    }
-
-    canvas#confetti { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      pointer-events: none; 
-      z-index: 9999; 
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Graduation Celebration</title>
+<style>
+body { font-family:'Georgia', serif; text-align:center; background:#1a1a1a; color:#FFD700; margin:0; padding:0;}
+h1 { font-size:3rem; margin-top:50px; text-shadow:2px 2px 5px black;}
+#form { margin-top:50px; }
+input#gradNumber { font-size:1.5rem; padding:10px; width:200px; border-radius:8px; border:2px solid #FFD700; background:#333; color:#FFD700; text-align:center; }
+button { font-size:1.5rem; padding:10px 25px; margin-left:10px; border-radius:8px; border:2px solid #FFD700; background:#333; color:#FFD700; cursor:pointer; transition:0.2s; }
+button:hover { background:#FFD700; color:#1a1a1a; }
+#result { display:none; margin-top:50px; }
+#congrats { font-size:3rem; text-shadow:2px 2px 5px black; margin-bottom:30px;}
+#photo { width:300px; height:300px; object-fit:cover; margin:30px 0; border:5px solid #FFD700;}
+.message-box, .verse-box { font-size:2rem; margin:15px auto; padding:20px; width:80%; max-width:600px; border-radius:20px; background:#333; border:2px solid #FFD700; box-shadow:2px 2px 10px black;}
+</style>
 </head>
 <body>
 
-  <h1>Graduation Celebration 🎓</h1>
+<h1>Graduation Celebration 🎓</h1>
 
-  <div id="form">
-    <input type="text" id="gradNumber" placeholder="Enter your graduation number">
-    <button onclick="celebrate()">Celebrate!</button>
-  </div>
+<div id="form">
+<input type="text" id="gradNumber" placeholder="Enter your graduation number">
+<button onclick="celebrate()">Celebrate!</button>
+</div>
 
-  <div id="result">
-    <h2 id="congrats"></h2>
-    <img id="photo" src="" alt="Graduate Photo">
-    <p id="message"></p>
-    <p id="verse"></p>
-  </div>
+<div id="result">
+<h2 id="congrats"></h2>
+<img id="photo" src="" alt="Graduate Photo">
+<div class="message-box" id="message"></div>
+<div class="verse-box" id="verse"></div>
+</div>
 
-  <audio id="music" loop>
-    <source src="music.mp3" type="audio/mpeg">
-  </audio>
+<audio id="music" loop>
+<source src="music.mp3" type="audio/mpeg">
+</audio>
 
-  <canvas id="confetti"></canvas>
-
+<!-- Include PapaParse -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-  let graduates = [];
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv3eBxRi0Cc-uxihd_f-09r4mobnoM88hLNiPccq05WiSnis4pIkV--ajRcoA2g4BgsAlGR8uS5JAd/pub?output=csv";
+let graduates = [];
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv3eBxRi0Cc-uxihd_f-09r4mobnoM88hLNiPccq05WiSnis4pIkV--ajRcoA2g4BgsAlGR8uS5JAd/pub?output=csv";
 
-  // ===== Fetch CSV and parse =====
-  fetch(SHEET_CSV_URL)
-    .then(res => res.text())
-    .then(text => {
-      const rows = text.trim().split("\n");
-      rows.slice(1).forEach(row => {
-        const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-        if(!cols) return;
-        graduates.push({
-          number: cols[0].replace(/"/g,'').trim(),
-          firstName: cols[1].replace(/"/g,'').trim(),
-          image: cols[2].replace(/"/g,'').trim(),
-          message: cols[3].replace(/"/g,'').trim(),
-          verse: cols[4].replace(/"/g,'').trim()
-        });
-      });
-      console.log("Graduates loaded:", graduates);
-    })
-    .catch(err => {
-      alert("Failed to load graduation data.");
-      console.error(err);
-    });
-
-  // ===== Confetti Setup =====
-  const canvas = document.getElementById('confetti');
-  const ctx = canvas.getContext('2d');
-  let confettiPieces = [];
-  let confettiInterval;
-
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
-  function createConfetti() {
-    confettiPieces = [];
-    for (let i = 0; i < 150; i++) {
-      confettiPieces.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height - canvas.height,
-        r: Math.random() * 6 + 4,
-        d: Math.random() * 50,
-        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-        tilt: Math.random() * 10
-      });
+// ===== Fetch and parse CSV safely =====
+Papa.parse(SHEET_CSV_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+        graduates = results.data.map(g => ({
+            number: g.number.trim(),
+            firstName: g.first_name.trim(),
+            image: g.image_url.trim(),
+            message: g.message.trim(),
+            verse: g.verse.trim()
+        }));
+        console.log("Graduates loaded:", graduates);
+    },
+    error: function(err) {
+        alert("Failed to load graduation data");
+        console.error(err);
     }
-  }
+});
 
-  function drawConfetti() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    confettiPieces.forEach(p => {
-      ctx.beginPath();
-      ctx.fillStyle = p.color;
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    updateConfetti();
-  }
-
-  function updateConfetti() {
-    confettiPieces.forEach(p => {
-      p.y += Math.cos(p.d) + 2 + p.r / 2;
-      p.x += Math.sin(p.d);
-      if (p.y > canvas.height) p.y = -10;
-    });
-  }
-
-  function startConfetti() {
-    createConfetti();
-    confettiInterval = setInterval(drawConfetti, 20);
-  }
-
-  // ===== Celebrate Function =====
-  function celebrate() {
+// ===== Celebrate function =====
+function celebrate() {
     const input = document.getElementById("gradNumber").value.trim();
     const grad = graduates.find(g => g.number === input);
     if(!grad) {
-      alert("Graduation number not found ❌");
-      return;
+        alert("Graduation number not found ❌");
+        return;
     }
 
     document.getElementById("form").style.display = "none";
@@ -204,9 +82,7 @@
 
     const music = document.getElementById("music");
     music.play();
-    startConfetti();
-  }
+}
 </script>
-
 </body>
 </html>
