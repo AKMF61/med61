@@ -62,6 +62,15 @@
     transform: scale(1.05);
   }
 
+  #welcomeImage {
+    width: 300px;
+    max-width: 80%;
+    border-radius: 16px;
+    border: 3px solid #FFD700;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+    margin-top: 30px;
+  }
+
   #result {
     display: none;
     margin: 50px auto;
@@ -113,7 +122,6 @@
     background: #292929;
   }
 
-  /* Confetti styles */
   canvas#confetti {
     position: fixed;
     top: 0;
@@ -138,6 +146,9 @@
       font-size: 1.1rem;
       padding: 10px 15px;
     }
+    #welcomeImage {
+      width: 200px;
+    }
   }
 </style>
 </head>
@@ -148,6 +159,10 @@
 <div id="form">
   <input type="text" id="gradNumber" placeholder="Enter your graduation number">
   <button onclick="celebrate()">Celebrate!</button>
+  <!-- Welcome image -->
+  <div>
+    <img id="welcomeImage" src="welcome.jpg" alt="Welcome Image">
+  </div>
 </div>
 
 <div id="result">
@@ -168,7 +183,7 @@
 let graduates = [];
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv3eBxRi0Cc-uxihd_f-09r4mobnoM88hLNiPccq05WiSnis4pIkV--ajRcoA2g4BgsAlGR8uS5JAd/pub?output=csv";
 
-// Load graduates from CSV
+// Load graduates
 Papa.parse(SHEET_CSV_URL, {
     download: true,
     header: true,
@@ -189,7 +204,7 @@ Papa.parse(SHEET_CSV_URL, {
     }
 });
 
-// ===== Confetti setup =====
+// Confetti setup
 const canvas = document.getElementById('confetti');
 const ctx = canvas.getContext('2d');
 let confettiPieces = [];
@@ -204,7 +219,7 @@ resizeCanvas();
 
 function createConfetti() {
     confettiPieces = [];
-    const colors = ['#FFD700', '#FFC700', '#FFB700', '#FFA500']; // golden shades
+    const colors = ['#FFD700', '#FFC700', '#FFB700', '#FFA500'];
     for (let i = 0; i < 150; i++) {
         confettiPieces.push({
             x: Math.random() * canvas.width,
@@ -243,7 +258,7 @@ function startConfetti() {
     confettiAnimation = setInterval(drawConfetti, 20);
 }
 
-// ===== Celebrate function =====
+// Celebrate function
 function celebrate() {
     const input = document.getElementById("gradNumber").value.trim();
     const grad = graduates.find(g => g.number === input);
