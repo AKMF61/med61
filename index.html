@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Graduation Celebration 🎓</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+      text-align: center;
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    input {
+      width: 80%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: none;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 14px 26px;
+      font-size: 16px;
+      border-radius: 14px;
+      border: none;
+      background: #ffd166;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin: 20px 0;
+      border: 4px solid rgba(255,255,255,0.4);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .verse {
+      margin-top: 12px;
+      font-style: italic;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+
+    <!-- INPUT FORM -->
+    <div id="form">
+      <h2>🎓 Graduation Celebration</h2>
+      <p>Enter your graduation number</p>
+      <input type="text" id="gradNumber" placeholder="e.g. 1023" />
+      <br />
+      <button onclick="findGraduate()">Celebrate 🎉</button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result" class="hidden">
+      <h1 id="congrats"></h1>
+      <img id="photo" src="" alt="Graduate photo" />
+      <p id="message"></p>
+      <p class="verse" id="verse"></p>
+
+      <audio id="music" loop>
+        <source src="music.mp3" type="audio/mpeg" />
+      </audio>
+      <canvas id="confetti"></canvas>
+    </div>
+
+  </div>
+
+  <script>
+    // CONFETTI SETUP
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    let confettiPieces = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function createConfetti() {
+      confettiPieces = [];
+      for (let i = 0; i < 150; i++) {
+        confettiPieces.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * 50,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+          tilt: Math.random() * 10
+        });
+      }
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confettiPieces.forEach(p => {
+        ctx.beginPath();
+        ctx.fillStyle = p.color;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      updateConfetti();
+    }
+
+    function updateConfetti() {
+      confettiPieces.forEach(p => {
+        p.y += Math.cos(p.d) + 2 + p.r / 2;
+        p.x += Math.sin(p.d);
+        if (p.y > canvas.height) {
+          p.y = -10;
+        }
+      });
+    }
+
+    function startConfetti() {
+      createConfetti();
+      setInterval(drawConfetti, 20);
+    }
+
+    /* =============================
+       STEP 1: PASTE YOUR CSV LINK HERE
+       ============================= */
+
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv3eBxRi0Cc-uxihd_f-09r4mobnoM88hLNiPccq05WiSnis4pIkV--ajRcoA2g4BgsAlGR8uS5JAd/pubhtml";
+
+    let graduates = [];
+
+    // Load Google Sheet data on page load
+    fetch(SHEET_CSV_URL)
+      .then(res => res.text())
+      .then(text => {
+        const rows = text.trim().split("\n").slice(1);
+        graduates = rows.map(row => {
+          const cols = row.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/);
+          return {
+            number: cols[0]?.trim(),
+            firstName: cols[1]?.trim(),
+            image: cols[2]?.trim(),
+            message: cols[3]?.trim(),
+            verse: cols[4]?.trim()
+          };
+        });
+      })
+      .catch(err => {
+        alert("Failed to load graduation data");
+        console.error(err);
+      });
+
+    function findGraduate() {
+      const input = document.getElementById("gradNumber").value.trim();
+      const grad = graduates.find(g => g.number === input);
+
+      if (!grad) {
+        alert("Graduation number not found ❌");
+        return;
+      }
+
+      document.getElementById("form").style.display = "none";
+      document.getElementById("result").classList.remove("hidden");
+
+      document.getElementById("congrats").innerText = `Congratulations, ${grad.firstName}!`;
+      document.getElementById("photo").src = grad.image;
+      document.getElementById("message").innerText = grad.message;
+      document.getElementById("verse").innerText = grad.verse;
+
+      const music = document.getElementById("music");
+      music.play();
+      startConfetti();();
+    }
+  </script>
+
+</body>
+</html>
