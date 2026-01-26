@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Graduation Celebration 🎓</title>
+<div class="title-box">
+  <h1>AKMF Med 61 Graduation</h1>
+</div>
 
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
@@ -144,6 +146,37 @@ canvas#confetti {
   z-index: 9999;
 }
 
+/* صندوق العنوان */
+.title-box {
+  display: inline-block;
+  padding: 20px 40px;
+  border-radius: 25px;
+  background: rgba(0, 0, 0, 0.5); /* نصف شفاف */
+  margin: 30px auto 20px;
+}
+
+/* النص باللون الذهبي مع Gradient */
+.title-box h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  margin: 0;
+  background: linear-gradient(45deg, #FFD700, #FFC700, #FFB700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+}
+
+
+
+
+
+
+
+
+
+
+
+  
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
   h1 { font-size: 2.2rem; }
@@ -289,6 +322,7 @@ function celebrate() {
 
 </body>
 </html>
+
 
 
 
