@@ -9,6 +9,11 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+
 <style>
 /* ===== FIX MOBILE WHITE SPACE ===== */
 * {
@@ -25,13 +30,13 @@ html, body {
 /* ===== BODY ===== */
 body {
   font-family: 'Montserrat', sans-serif;
+  color: #FFD700;
   text-align: center;
   background: url("https://raw.githubusercontent.com/AKMF61/med61/refs/heads/main/%E2%80%94Pngtree%E2%80%94graduation%20golden%20and%20premium%20black_2497013.jpg") center center no-repeat;
 background-size: cover;
 background-attachment: scroll;
 
 
-  color: #FFD700;
 }
 
 /* ===== TITLE ===== */
@@ -39,7 +44,7 @@ h1 {
   font-family: 'Playfair Display', serif;
   font-size: 3rem;
   margin: 40px 16px 20px;
-  text-shadow: 2px 2px 8px #000;
+
 }
 
 /* ===== FORM ===== */
@@ -60,20 +65,25 @@ input#gradNumber {
 }
 
 button {
-  font-size: 1.2rem;
-  padding: 12px 28px;
-  margin-top: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.3rem;
+  padding: 12px 30px;
+  margin-top: 20px;
+  margin-left: 10px;
   border-radius: 12px;
   border: 2px solid #FFD700;
-  background: #111;
-  color: #FFD700;
+  background: linear-gradient(45deg, #FFD700, #FFC700, #FFB700); /* Gradient ذهبي */
+  color: #1a1a1a; /* نص أسود */
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 button:hover {
-  background: #FFD700;
-  color: #000;
+  background: linear-gradient(45deg, #FFB700, #FFD700, #FFE135);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
 }
 
 /* ===== WELCOME IMAGE ===== */
@@ -97,7 +107,7 @@ button:hover {
   padding: 30px 20px;
   border-radius: 22px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-  opacity: 0;
+  opacity:;
   transform: translateY(40px);
   transition: all 1s ease;
 }
@@ -149,22 +159,22 @@ canvas#confetti {
 /* صندوق العنوان */
 .title-box {
   display: inline-block;
-  padding: 20px 40px;
-  border-radius: 25px;
-  background: rgba(0, 0, 0, 0.5); /* نصف شفاف */
+  padding: 10px 40px;
+  border-radius: 35px;
+  background: rgba(0, 0, 0, 0.75); /* نصف شفاف */
   margin: 30px auto 20px;
 }
 
 /* النص باللون الذهبي مع Gradient */
 .title-box h1 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Poppins', serif;
   font-size: 3rem;
   margin: 0;
-   background: linear-gradient(90deg, #fcff9e 0%, #c67700 100%);
+   background: linear-gradient(180deg, #fcff9e 00%, #c67700 100%);
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+  
 }
 
 
@@ -322,7 +332,6 @@ function celebrate() {
 
 </body>
 </html>
-
 
 
 
