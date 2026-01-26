@@ -102,6 +102,7 @@
 
   <script>
     // CONFETTI SETUP
+    let graduates = []; // global array to hold all graduate data
     const canvas = document.getElementById('confetti');
     const ctx = canvas.getContext('2d');
     let confettiPieces = [];
@@ -162,14 +163,13 @@
     let graduates = [];
 
     // Load Google Sheet data on page load
-  fetch(SHEET_CSV_URL)
+fetch(SHEET_CSV_URL)
   .then(res => res.text())
   .then(text => {
     const rows = text.trim().split("\n");
-    const headers = rows[0].split(",");
-    graduates = rows.slice(1).map(r => {
-      // Split by commas not inside quotes
-      const cols = r.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+    // headers are in rows[0]
+    graduates = rows.slice(1).map(row => {
+      const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
       return {
         number: cols[0].replace(/"/g,'').trim(),
         firstName: cols[1].replace(/"/g,'').trim(),
@@ -178,22 +178,35 @@
         verse: cols[4].replace(/"/g,'').trim()
       };
     });
-    console.log("Loaded graduates:", graduates);
+    console.log("Graduates loaded:", graduates);
   })
-  .catch(err => {
-    alert("Failed to load graduation data");
-    console.error(err);
-  });
+  .catch(err => console.error("Failed to load CSV:", err));
 
 
 
     function findGraduate() {
-     const input = document.getElementById("gradNumber").value.trim();
-const grad = graduates.find(g => g.number === input);
-if (!grad) {
-  alert("Graduation number not found ❌");
-  return;
+  const input = document.getElementById("gradNumber").value.trim();
+  const grad = graduates.find(g => g.number === input);
+
+  if (!grad) {
+    alert("Graduation number not found ❌");
+    return;
+  }
+
+  // show info
+  document.getElementById("form").style.display = "none";
+  document.getElementById("result").classList.remove("hidden");
+
+  document.getElementById("congrats").innerText = `Congratulations, ${grad.firstName}!`;
+  document.getElementById("photo").src = grad.image;
+  document.getElementById("message").innerText = grad.message;
+  document.getElementById("verse").innerText = grad.verse;
+
+  const music = document.getElementById("music");
+  music.play();
+  startConfetti();
 }
+
 
 
       document.getElementById("form").style.display = "none";
@@ -212,6 +225,7 @@ if (!grad) {
 
 </body>
 </html>
+
 
 
 
